@@ -2,13 +2,8 @@
 #define PIUIO_PICO_PIUIO_CONFIG_H
 #include "piuio_ws2812_helpers.h"
 
-// Uncomment to enable PIU button board mode (menu buttons)
-#define ENABLE_BUTTON_BOARD
-
-// Uncomment these defines to enable WS2812 LED support.
-//#define ENABLE_WS2812_SUPPORT
-//#define WS2812_IS_RGBW false
-//#define WS2812_PIN 22
+static const uint8_t WS2812_PIN = 22;
+static const bool WS2812_IS_RGBW = false;
 
 // Modify these to edit the colors of the cabinet lamps.
 static uint32_t ws2812_color[5] = {

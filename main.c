@@ -49,10 +49,22 @@ void piuio_task(void) {
     ws2812_lock_mtx();
     #endif
 
+    uint8_t* p1 = &inputData[PLAYER_1];
+    uint8_t* p2 = &inputData[PLAYER_2];
+
     // P1 / P2 inputs
+#ifdef ENABLE_BUTTON_BOARD
+    // TODO: avoid this ugly patch
+    // Since BB have only 8 inputs, UR and UL are the same buttons
+    // pos[1] == pos[3] == 0 so we'll handle it other way
+
+    *p1 = (gpio_get(pinSwitch[1]) && gpio_get(pinSwitch[3])) ? tu_bit_set(*p1, pos[1]) : tu_bit_clear(*p1, pos[1]);
+    *p2 = (gpio_get(pinSwitch[1+5]) && gpio_get(pinSwitch[3 + 5])) ? tu_bit_set(*p2, pos[1]) : tu_bit_clear(*p2, pos[1]);
+
+    for (int i = 0; i < 5; i += 2) {
+#else
     for (int i = 0; i < 5; i++) {
-        uint8_t* p1 = &inputData[PLAYER_1];
-        uint8_t* p2 = &inputData[PLAYER_2];
+#endif
         *p1 = gpio_get(pinSwitch[i]) ? tu_bit_set(*p1, pos[i]) : tu_bit_clear(*p1, pos[i]);
         *p2 = gpio_get(pinSwitch[i+5]) ? tu_bit_set(*p2, pos[i]) : tu_bit_clear(*p2, pos[i]);
     }

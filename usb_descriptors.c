@@ -40,8 +40,6 @@
 // Device Descriptors
 //--------------------------------------------------------------------+
 
-// If button board mode is enabled, use the button board PID/VID
-#ifdef ENABLE_BUTTON_BOARD
 tusb_desc_device_t const desc_device =
         {
                 .bLength            = sizeof(tusb_desc_device_t),
@@ -55,34 +53,13 @@ tusb_desc_device_t const desc_device =
                 .bDeviceProtocol    = 0x00,
                 .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
+#ifdef ENABLE_BUTTON_BOARD // If button board mode is enabled, use the button board PID/VID
                 .idVendor           = 0x0d2f,
                 .idProduct          = 0x1010,
-                .bcdDevice          = 0x0100,
-
-                .iManufacturer      = 0x01,
-                .iProduct           = 0x02,
-                .iSerialNumber      = 0x03,
-
-                .bNumConfigurations = 0x01
-        };
-
-// Otherwise, use the standard PIUIO PID/VID
-#else
-tusb_desc_device_t const desc_device =
-        {
-                .bLength            = sizeof(tusb_desc_device_t),
-                .bDescriptorType    = TUSB_DESC_DEVICE,
-                .bcdUSB             = 0x0100, // at least 2.1 or 3.x for BOS & webUSB
-
-                // Use Interface Association Descriptor (IAD) for CDC
-                // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
-                .bDeviceClass       = 0xFF,
-                .bDeviceSubClass    = 0x00,
-                .bDeviceProtocol    = 0x00,
-                .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
-
+#else // Otherwise, use the standard PIUIO PID/VID
                 .idVendor           = 0x0547,
                 .idProduct          = 0x1002,
+#endif
                 .bcdDevice          = 0x0100,
 
                 .iManufacturer      = 0x01,
@@ -91,7 +68,6 @@ tusb_desc_device_t const desc_device =
 
                 .bNumConfigurations = 0x01
         };
-#endif
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
@@ -143,7 +119,12 @@ char const* string_desc_arr [] =
         {
                 (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
                 "Andamirn'to",                     // 1: Manufacturer
-                "Andamirn'to PIUIO",              // 2: Product
+                // 2: Product
+#ifdef ENABLE_BUTTON_BOARD
+                "Andamirn'to ButtonBoard",
+#else
+                "Andamirn'to PIUIO",
+#endif
                 "123456",                      // 3: Serials, should use chip ID
                 "PIUIO-pico"               // 4: Vendor Interface
         };

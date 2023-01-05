@@ -6,7 +6,7 @@ Though designed for [dj505's PicoFX handpump controller](https://github.com/dj50
 
 Can be used as ButtonBoard (menu button IO), just configure cmake with `-DBUTTON_BOARD=1`
 
-To enable PicoFX lights, configure cmake with `-DCAB_LIGHTS_WS2812`
+To enable PicoFX lights, configure cmake with `-DCAB_LIGHTS_WS2812=1`
 
 ## Hardware Setup
 You don't need many components to put one together:

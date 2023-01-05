@@ -10,7 +10,16 @@
 #include "piuio_ws2812.h"
 #endif
 
-const uint8_t pos[] = { 3, 0, 2, 1, 4 }; // don't touch this
+// Switch -> PIUIO input/output bytes mappings
+// And the offset between the bit positions in the input byte and the bit positions in the output bytes for panel data
+// (don't touch)
+#ifdef ENABLE_BUTTON_BOARD // The mappings change between the piuio and button board
+const uint8_t pos[] = { 1, 0, 3, 0, 2 };
+const uint8_t lightsOffset = 0;
+#else
+const uint8_t pos[] = { 3, 0, 2, 1, 4 };
+const uint8_t lightsOffset = 2;
+#endif
 
 // PIUIO input and output data
 uint8_t inputData[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -40,10 +49,22 @@ void piuio_task(void) {
     ws2812_lock_mtx();
     #endif
 
+    uint8_t* p1 = &inputData[PLAYER_1];
+    uint8_t* p2 = &inputData[PLAYER_2];
+
     // P1 / P2 inputs
+#ifdef ENABLE_BUTTON_BOARD
+    // TODO: avoid this ugly patch
+    // Since BB have only 8 inputs, UR and UL are the same buttons
+    // pos[1] == pos[3] == 0 so we'll handle it other way
+
+    *p1 = (gpio_get(pinSwitch[1]) && gpio_get(pinSwitch[3])) ? tu_bit_set(*p1, pos[1]) : tu_bit_clear(*p1, pos[1]);
+    *p2 = (gpio_get(pinSwitch[1+5]) && gpio_get(pinSwitch[3 + 5])) ? tu_bit_set(*p2, pos[1]) : tu_bit_clear(*p2, pos[1]);
+
+    for (int i = 0; i < 5; i += 2) {
+#else
     for (int i = 0; i < 5; i++) {
-        uint8_t* p1 = &inputData[PLAYER_1];
-        uint8_t* p2 = &inputData[PLAYER_2];
+#endif
         *p1 = gpio_get(pinSwitch[i]) ? tu_bit_set(*p1, pos[i]) : tu_bit_clear(*p1, pos[i]);
         *p2 = gpio_get(pinSwitch[i+5]) ? tu_bit_set(*p2, pos[i]) : tu_bit_clear(*p2, pos[i]);
     }
@@ -54,8 +75,8 @@ void piuio_task(void) {
 
     // Write pad lamps
     for (int i = 0; i < 5; i++) {
-        gpio_put(pinLED[i], tu_bit_test(lamp.data[PLAYER_1], pos[i] + 2));
-        gpio_put(pinLED[i+5], tu_bit_test(lamp.data[PLAYER_2], pos[i] + 2));
+        gpio_put(pinLED[i], tu_bit_test(lamp.data[PLAYER_1], pos[i] + lightsOffset));
+        gpio_put(pinLED[i+5], tu_bit_test(lamp.data[PLAYER_2], pos[i] + lightsOffset));
     }
 
     // Write the bass neon to the onboard LED for testing + kicks

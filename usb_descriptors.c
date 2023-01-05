@@ -39,6 +39,7 @@
 //--------------------------------------------------------------------+
 // Device Descriptors
 //--------------------------------------------------------------------+
+
 tusb_desc_device_t const desc_device =
         {
                 .bLength            = sizeof(tusb_desc_device_t),
@@ -52,8 +53,13 @@ tusb_desc_device_t const desc_device =
                 .bDeviceProtocol    = 0x00,
                 .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
+#ifdef ENABLE_BUTTON_BOARD // If button board mode is enabled, use the button board PID/VID
+                .idVendor           = 0x0d2f,
+                .idProduct          = 0x1010,
+#else // Otherwise, use the standard PIUIO PID/VID
                 .idVendor           = 0x0547,
                 .idProduct          = 0x1002,
+#endif
                 .bcdDevice          = 0x0100,
 
                 .iManufacturer      = 0x01,
@@ -113,7 +119,12 @@ char const* string_desc_arr [] =
         {
                 (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
                 "Andamirn'to",                     // 1: Manufacturer
-                "Andamirn'to PIUIO",              // 2: Product
+                // 2: Product
+#ifdef ENABLE_BUTTON_BOARD
+                "Andamirn'to ButtonBoard",
+#else
+                "Andamirn'to PIUIO",
+#endif
                 "123456",                      // 3: Serials, should use chip ID
                 "PIUIO-pico"               // 4: Vendor Interface
         };

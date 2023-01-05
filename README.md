@@ -4,6 +4,10 @@ This is a Pump it Up IO board (PIUIO) clone based on the Raspberry Pi Pico micro
 
 Though designed for [dj505's PicoFX handpump controller](https://github.com/dj505/PicoFX), this will work with DIY hand pump controller builds, and can probably be adapted for pad use, too.
 
+Can be used as ButtonBoard (menu button IO), just configure cmake with `-DBUTTON_BOARD=1`
+
+To enable PicoFX lights, configure cmake with `-DCAB_LIGHTS_WS2812`
+
 ## Hardware Setup
 You don't need many components to put one together:
  - Raspberry Pi Pico
